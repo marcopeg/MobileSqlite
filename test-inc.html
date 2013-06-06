@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	
+	<title>SQLite</title>
+	
+	<!-- // Choose Developement or Production Entry Point -->
+	<script src="test/jquery-1.10.1.min.js?v001"></script>
+	<script src="inc/sqlite.src.js?v001"></script>
+	
+	
+</head>
+<body>
+
+	<script>
+	$(document).ready(function() {
+		
+		
+		
+		
+		
+		/**
+		 * Setup Database Connection
+		 */
+		var db = new SQLite({
+			name: 'TestDb',
+			
+			
+			/**
+			 * define database schema
+			 */
+			schema: [{
+				name: 'users',
+				fields: [
+					{name:'id', type:'INTEGER', autoincrement:true, primary:true},
+					{name:'name', type:'VARCHAR', len:255},
+					{name:'surname', type:'VARCHAR', len:255}
+				]
+			},{
+				name: 'books',
+				fields: [
+					{name:'id', type:'INTEGER', autoincrement:true, primary:true},
+					{name:'user_id', type:'INTEGER'},
+					{name:'title', type:'VARCHAR', len:255}
+				]
+			}],
+			
+			
+			/**
+			 * populate with some data at database creation time
+			 * (these instruction runs only the first time initialization happens!)
+			 */
+			onAfterCreate: function() {
+				var _D = $.Deferred();
+				
+				this.multi([
+					// some users
+					"INSERT INTO users VALUES (1, 'Marco', 'Pegoraro')",
+					"INSERT INTO users VALUES (2, 'Luca', 'Biondi')",
+					"INSERT INTO users VALUES (3, 'Alfonso', 'Gemelli')",
+					
+					// some books
+					"INSERT INTO books VALUES (null, 1, 'Un Anno sull''Altipiano')",
+					"INSERT INTO books VALUES (null, 1, 'Cyclops')",
+					"INSERT INTO books VALUES (null, 2, 'L''Oro dell''Inca')",
+				]).done(function() {
+					_D.resolveWith(this);
+				});
+				
+				return _D.promise();
+			}
+			
+			
+		});
+		
+		
+		
+		
+		/**
+		 * Just run some database logic when connection is ready
+		 */
+		db.ready(function() {
+			
+			// list all users and their books!
+			this.find("SELECT * FROM users ORDER BY surname ASC").done(function(users) {
+				$.each(users, $.proxy(function(i, user) {
+					this.find("SELECT * FROM books WHERE user_id="+user.id).done(function(books) {
+						console.log(user.name + ' ' + user.surname);
+						console.log("===========================");
+						$.each(books, function(i, book) {
+							console.log("- " + book.title);
+						});
+						console.log("\n\n\n");
+					});
+				},this));
+			});
+			
+		});
+		
+	});
+	</script>
+	
+</body>
+</html>
