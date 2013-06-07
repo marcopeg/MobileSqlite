@@ -35,11 +35,11 @@ define(['./class.sqlite'], function(SQLite) {
 				rows.push( r.rows.item(i) );
 			}
 			
-			dfd.resolveWith(cfg.context, [rows, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [rows, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			
 		});
 		
@@ -72,11 +72,11 @@ define(['./class.sqlite'], function(SQLite) {
 				r = [];
 			}
 			
-			dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			
 		});
 		
@@ -127,13 +127,13 @@ define(['./class.sqlite'], function(SQLite) {
 			// callback "after"
 			_stepDfd.always(function() {
 				$.when(cfg.after.call(_this, r)).then(function() {
-					dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
+					dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 				});
 			});
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			
 		});
 				

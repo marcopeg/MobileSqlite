@@ -100,6 +100,10 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 			}
 		}
 		
+		// skip protected tables
+		var protectedTables = ['sqlite_sequence'];
+		if (protectedTables.indexOf(table) != -1) return;
+		
 		// table wasn't found so is dropped out!
 		this.dropTable(table);
 	}

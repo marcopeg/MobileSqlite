@@ -31,11 +31,11 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		// success
 		}).done(function(r, tx) {
 			var fields = __SQLite__fieldsFromSql(r.sql);
-			dfd.resolveWith(cfg.context, [fields, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [fields, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, true, tx, dfd]);
 			
 		});
 		

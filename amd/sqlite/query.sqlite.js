@@ -28,9 +28,10 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		
 		this.db.transaction(function(tx) {
 			tx.executeSql(cfg.query, cfg.data, function(tx, r) {
-				dfd.resolveWith(cfg.context, [r, cfg, tx, true, dfd]);
+				dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 			}, function(tx, e) {
-				dfd.rejectWith(cfg.context, [e, cfg, tx, false, dfd]);
+				console.log(e);
+				dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			});
 		});
 		
@@ -72,22 +73,24 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		// non quequed multi query implementation
 		} else {
 			var _queries = 0;
-			var _success = [];
-			var _failure = [];
+			var _results = {
+				done: [],
+				fail: []
+			};
 			
 			for (var i=0; i<queries.length; i++) {
 				_queries++;
-				this.query(queries[i]).done(function(r, cfg) {
-					_success.push(cfg.query);
+				this.query(queries[i]).done(function() {
+					_results.done.push(arguments);
 					
 				}).fail(function() {
-					_failure.push(cfg.query);
+					_results.fail.push(arguments);
 				
 				// check to determine the ending of queries execution!
 				}).always(function() {
 					_queries--;
 					if (_queries == 0 && i>=queries.length-1) {
-						dfd.resolveWith(this, [_success, _failure]);
+						dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 					}
 					
 				});
@@ -95,7 +98,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 			
 			// solve an empty queries array... may be an error of a stupid dev!
 			if (!queries.length) {
-				dfd.resolveWith(this, [_success, _failure]);
+				dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 			}
 		}
 		
@@ -125,23 +128,25 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		var _step	 = 0;
-		var _success = [];
-		var _failure = [];
+		var _results = {
+			done: [],
+			fail: []
+		};
 		
 		// step logic
 		// go to the next step when query ends execution
 		var _doStep = function() {
 			var query = queries[_step];
 			this.query(query).done(function() {
-				_success.push(query);
+				_results.done.push(arguments);
 				
 			}).fail(function() {
-				_failure.push(query);
+				_results.fail.push(arguments);
 			
 			// determine the end of the queque or setup next step
 			}).always(function() {
 				if (_step >= queries.length-1) {
-					dfd.resolveWith(this, [_success, _failure]);
+					dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 				} else {
 					_step++;
 					_doStep.call(this);
@@ -154,7 +159,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		if (queries.length) {
 			_doStep.call(this);
 		} else {
-			dfd.resolveWith(this, [_success, _failure]);
+			dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 		}
 		
 		return dfd.promise();

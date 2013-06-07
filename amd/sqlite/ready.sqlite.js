@@ -63,11 +63,11 @@ define(['./class.sqlite'], function(SQLite) {
 		var _D = $.Deferred();		
 		
 		_B.ready(function() {
-			$.when(_B[_api].apply(_B, _A)).then(function(r, tx, cfg, is, dfd) {
-				if (is) {
-					_D.resolveWith(_B, [r, tx, cfg, is, dfd]);
+			$.when(_B[_api].apply(_B, _A)).always(function(r, cfg, _is_, tx, dfd) {
+				if (_is_) {
+					_D.resolveWith(_B, [r, cfg, _is_, tx, dfd]);
 				} else {
-					_D.rejectWith(_B, [r, tx, cfg, is, dfd]);
+					_D.rejectWith(_B, [r, cfg, _is_, tx, dfd]);
 				}
 			});
 		});
@@ -78,6 +78,14 @@ define(['./class.sqlite'], function(SQLite) {
 	
 	__SQLite__ready.prototype.query = function() {
 		return this.bypass('query', arguments);
+	}
+	
+	__SQLite__ready.prototype.multi = function() {
+		return this.bypass('multi', arguments);
+	}
+	
+	__SQLite__ready.prototype.multiq = function() {
+		return this.bypass('multiq', arguments);
 	}
 	
 	__SQLite__ready.prototype.list = function() {
