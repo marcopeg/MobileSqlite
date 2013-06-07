@@ -35,6 +35,9 @@ define(['jquery'], function($) {
 	};
 	
 	
+	
+	
+	
 	SQLite.prototype.log = function(txt, usealert) {
 		if (this.config.debug) {
 			if (usealert) {
@@ -48,21 +51,6 @@ define(['jquery'], function($) {
 			}
 		}
 	};
-	
-	
-	/**
-	 * Execute "action" callback just after connection process ends.
-	 * callback should block execution implementing DFD.
-	 */
-	SQLite.prototype.ready = function(action) {
-		var dfd = $.Deferred();
-		this.Conn.done($.proxy(function() {
-			$.when(action.call(this)).then($.proxy(function() {
-				dfd.resolveWith(this);
-			},this));
-		}, this));
-		return dfd.promise();
-	}
 	
 	
 	/**

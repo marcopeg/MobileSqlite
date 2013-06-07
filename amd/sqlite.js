@@ -28,7 +28,8 @@ define([
 	'./sqlite/addcolumn.sqlite',
 	'./sqlite/checkschema.sqlite',
 	'./sqlite/checktableschema.sqlite',
-	'./sqlite/checkversion.sqlite'
+	'./sqlite/checkversion.sqlite',
+	'./sqlite/ready.sqlite'
 	
 ], function(
 	$,
@@ -74,7 +75,6 @@ define([
 			
 		}, cfg||{});
 	}
-	
 	
 		
 	// export module

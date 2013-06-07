@@ -9,6 +9,7 @@
 
 define(['jquery', './class.sqlite'], function($, SQLite) {
 	
+	
 	/**
 	 * Run a query on the active database.
 	 * return a jQuery.promise object so you can attach multiple callbacks
