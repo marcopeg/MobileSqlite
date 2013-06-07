@@ -115,6 +115,6 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return this.Conn.promise();
-	}
+	};
 	
 });

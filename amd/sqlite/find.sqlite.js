@@ -44,7 +44,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	SQLite.prototype.first = function(cfg) {
 		
@@ -81,7 +81,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -138,7 +138,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 				
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -154,7 +154,7 @@ define(['./class.sqlite'], function(SQLite) {
 				__SQLite__eachStepLogic.call(this, _D, cfg, results, step+1);
 			}	
 		},this));
-	}
+	};
 	
 	
 	/**
@@ -168,6 +168,6 @@ define(['./class.sqlite'], function(SQLite) {
 		_D.resolve();
 		
 		return _D.promise();
-	}
+	};
 	
 });

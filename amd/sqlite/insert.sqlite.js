@@ -39,7 +39,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	SQLite.prototype.insertMany = function(items, table, cfg) {
@@ -64,7 +64,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	var __SQLite__buildInsertSql = function(fields, table) {
@@ -77,19 +77,18 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		});
 		
 		return 'INSERT INTO ' + table + ' (' + l1.substr(0, l1.length-1) + ') VALUES (' + l2.substr(0, l2.length-1) + ')';
-	}
+	};
 	
 	
 	var __SQLite__insertManyStep = function(items, table, step, results, dfd, _class) {
 		_class.insert(items[step], table).always(function(r) {
 			results.push(r);
 			if (step >= items.length-1) {
-				console.log("OK");
 				dfd.resolveWith(_class, [results]);
 			} else {
 				__SQLite__insertManyStep(items, table, step+1, results, dfd, _class);
 			}
 		});
-	}
+	};
 	
 });

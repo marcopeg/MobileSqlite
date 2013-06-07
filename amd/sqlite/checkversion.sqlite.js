@@ -52,7 +52,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -73,7 +73,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		
 		var _error = function(e) {
 			dfd.rejectWith(this, [e]);
-		}
+		};
 		
 		// new version success, chain migrating actions:
 		// - callback "onBefore"
@@ -81,13 +81,13 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		// - callbacl "onAfter"
 		var _success = function() {
 			$.when(version.onBefore.call(this)).then($.proxy(function() {
-				this.multiQuery(version.query, {quequed:version.quequed}).always($.proxy(function() {
+				this.many(version.query, {quequed:version.quequed}).always($.proxy(function() {
 					$.when(version.onAfter.call(this)).then($.proxy(function() {
 						dfd.resolveWith(this);	
 					}, this));	
 				},this));
 			},this));
-		}
+		};
 		
 		// apply new version and throw callbacks
 		if (this.db.version == version.match) {
@@ -97,6 +97,6 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return dfd.promise();
-	}
+	};
 	
 });

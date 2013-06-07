@@ -1,5 +1,7 @@
 ;(function($){
 
+	
+	
 	/**
 	 * Constructor
 	 */
@@ -25,14 +27,114 @@
 		return this;
 	};
 	
-	// global namespace
-	window.SQLite = SQLite;
+	
+	
+	
+	
+	SQLite.prototype.log = function(txt, usealert) {
+		if (this.config.debug) {
+			if (usealert) {
+				alert(txt);
+			} else {
+				if (typeof txt == 'string') {
+					console.log('[SQLite] ' + txt);
+				} else {
+					console.log(txt);
+				}
+			}
+		}
+	};
+	
+	
+	/**
+	 * It build up a standard configuration set for quering.
+	 * used by: query, find, findAll
+	 */
+	SQLite.prototype.configQuery = function(cfg) {
+		
+		if (typeof cfg == 'string') {
+			cfg = {query:cfg};
+		}
+		
+		return $.extend({},{
+			query: 		'',
+			data: 		[],
+			success: 	function() {},
+			error: 		function() {},
+			complete: 	function() {},
+			context: 	this
+		}, cfg);
+	};
+	
+	
+	/**
+	 * It compose a new deferred object and bind internal callbacks
+	 * from given configuration object.
+	 */
+	SQLite.prototype.configDeferred = function(cfg) {
+		var d = new $.Deferred();
+		d.done(cfg.success);
+		d.fail(cfg.error);
+		d.always(cfg.complete);
+		return d;
+	};
+	
+	
+	SQLite.prototype.getTableConfig = function(table) {
+		for (var i=0; i<this.config.schema.length; i++) {
+			if (this.config.schema[i].name == table) {
+				return this.config.schema[i];
+			}
+		}
+	};
+	
+	
+	SQLite.prototype.getTableConfigFields = function(table) {
+		var schema = this.getTableConfig(table);
+		if (schema) {
+			return schema.fields;
+		} else {
+			return [];
+		}
+	};
+	
+	
+	/**
+	 * It take a column (field) configuration object and compose
+	 * the piece of sql to rapresent it.
+	 */
+	SQLite.prototype.columnConfig2Sql = function(field) {
+		
+		var sql = field.name + ' ' + field.type;
+		
+		if (field.len != undefined) {
+			sql+= '(' + field.len + ')';
+		}
+		
+		if (field.primary != undefined) {
+			sql+= ' PRIMARY KEY';
+		}
+		
+		if (field.autoincrement) {
+			sql+= ' AUTOINCREMENT';
+		}
+		
+		return sql;
+	};
 	
 	
 	/**
 	 * Apply default configuration to the instance
 	 */
 	SQLite.prototype.initialize = function(cfg) {
+		
+		// single string argument as dbname
+		if (typeof cfg == 'string') {
+			cfg = {
+				name: cfg
+			};
+		}
+		
 		this.config = $.extend({}, {
 			
 			// database connection informations
@@ -65,114 +167,7 @@
 			versions: []
 			
 		}, cfg||{});
-	}
-	
-	
-	SQLite.prototype.log = function(txt, usealert) {
-		if (this.config.debug) {
-			if (usealert) {
-				alert(txt);
-			} else {
-				if (typeof txt == 'string') {
-					console.log('[SQLite] ' + txt);
-				} else {
-					console.log(txt);
-				}
-			}
-		}
 	};
-	
-	
-	/**
-	 * Execute "action" callback just after connection process ends.
-	 * callback should block execution implementing DFD.
-	 */
-	SQLite.prototype.ready = function(action) {
-		var dfd = $.Deferred();
-		this.Conn.done($.proxy(function() {
-			$.when(action.call(this)).then($.proxy(function() {
-				dfd.resolveWith(this);
-			},this));
-		}, this));
-		return dfd.promise();
-	}
-	
-	
-	/**
-	 * It build up a standard configuration set for quering.
-	 * used by: query, find, findAll
-	 */
-	SQLite.prototype.configQuery = function(cfg) {
-		
-		if (typeof cfg == 'string') {
-			cfg = {query:cfg};
-		}
-		
-		return $.extend({},{
-			query: 		'',
-			data: 		[],
-			success: 	function() {},
-			error: 		function() {},
-			complete: 	function() {},
-			context: 	this
-		}, cfg);
-	}
-	
-	
-	/**
-	 * It compose a new deferred object and bind internal callbacks
-	 * from given configuration object.
-	 */
-	SQLite.prototype.configDeferred = function(cfg) {
-		var d = new $.Deferred();
-		d.done(cfg.success);
-		d.fail(cfg.error);
-		d.always(cfg.complete);
-		return d;
-	}
-	
-	
-	SQLite.prototype.getTableConfig = function(table) {
-		for (var i=0; i<this.config.schema.length; i++) {
-			if (this.config.schema[i].name == table) {
-				return this.config.schema[i];
-			}
-		}
-	}
-	
-	
-	SQLite.prototype.getTableConfigFields = function(table) {
-		var schema = this.getTableConfig(table);
-		if (schema) {
-			return schema.fields;
-		} else {
-			return [];
-		}
-	}
-	
-	
-	/**
-	 * It take a column (field) configuration object and compose
-	 * the piece of sql to rapresent it.
-	 */
-	SQLite.prototype.columnConfig2Sql = function(field) {
-		
-		var sql = field.name + ' ' + field.type;
-		
-		if (field.len != undefined) {
-			sql+= '(' + field.len + ')';
-		}
-		
-		if (field.primary != undefined) {
-			sql+= ' PRIMARY KEY';
-		}
-		
-		if (field.autoincrement) {
-			sql+= ' AUTOINCREMENT';
-		}
-		
-		return sql;
-	}
 	
 	
 	SQLite.prototype.addColumn = function(column, table) {
@@ -193,7 +188,7 @@
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -269,7 +264,7 @@
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -287,9 +282,14 @@
 			}
 		}
 		
+		// skip protected tables
+		var protectedTables = ['sqlite_sequence'];
+		if (protectedTables.indexOf(table) != -1) return;
+		
 		// table wasn't found so is dropped out!
 		this.dropTable(table);
-	}
+	};
+	
 	
 	
 	SQLite.prototype.checkTableSchema = function(table) {
@@ -330,7 +330,8 @@
 		});
 		
 		return dfd.promise();
-	}
+	};
+	
 	
 	
 	SQLite.prototype.checkVersion = function() {
@@ -376,7 +377,7 @@
 		}
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -397,7 +398,7 @@
 		
 		var _error = function(e) {
 			dfd.rejectWith(this, [e]);
-		}
+		};
 		
 		// new version success, chain migrating actions:
 		// - callback "onBefore"
@@ -405,13 +406,13 @@
 		// - callbacl "onAfter"
 		var _success = function() {
 			$.when(version.onBefore.call(this)).then($.proxy(function() {
-				this.multiQuery(version.query, {quequed:version.quequed}).always($.proxy(function() {
+				this.many(version.query, {quequed:version.quequed}).always($.proxy(function() {
 					$.when(version.onAfter.call(this)).then($.proxy(function() {
 						dfd.resolveWith(this);	
 					}, this));	
 				},this));
 			},this));
-		}
+		};
 		
 		// apply new version and throw callbacks
 		if (this.db.version == version.match) {
@@ -421,8 +422,7 @@
 		}
 		
 		return dfd.promise();
-	}
-	
+	};
 	
 	
 	/**
@@ -531,54 +531,7 @@
 		}
 		
 		return this.Conn.promise();
-	}
-	
-	
-	
-	
-	/**
-	 * Remove a table and it's contents from database
-	 */
-	SQLite.prototype.createTable = function(schema, cfg) {
-		
-		var cfg = this.configQuery(cfg);
-		var dfd = this.configDeferred(cfg);
-		
-		// missing database connection!
-		if (!this.db) {
-			dfd.rejectWith(this, [[], queries]);
-			return dfd.promise();
-		}
-		
-		// setup CREATE statement
-		cfg.query = 'CREATE TABLE ' + schema.name + ' (';
-		for (var i=0; i<schema.fields.length; i++) {
-			cfg.query+= this.columnConfig2Sql(schema.fields[i]);
-			if (i < schema.fields.length-1) {
-				cfg.query+= ', ';
-			}
-		}
-		cfg.query+= ')';
-		
-		this.log(cfg.query);
-		
-		// action
-		this.query({
-			query: cfg.query
-		
-		// success
-		}).done(function(r, tx) {
-			dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
-		
-		// failure
-		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
-			
-		});
-		
-		return dfd.promise();
-	}
-	
+	};
 	
 	
 	SQLite.prototype.describeTable = function(cfg) {
@@ -594,22 +547,22 @@
 		}
 		
 		// action
-		this.findFirst({
+		this.first({
 			query: "SELECT sql FROM sqlite_master WHERE type='table' AND name = '"+cfg.query+"'"
 		
 		// success
 		}).done(function(r, tx) {
 			var fields = __SQLite__fieldsFromSql(r.sql);
-			dfd.resolveWith(cfg.context, [fields, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [fields, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, true, tx, dfd]);
 			
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -633,7 +586,7 @@
 		}
 		
 		return fields;
-	}
+	};
 	
 	
 	/**
@@ -680,7 +633,7 @@
 			return info;
 		}
 		
-	}
+	};
 	
 	
 	/**
@@ -706,15 +659,11 @@
 		}
 		
 		return type;
-	}
+	};
 	
 	
 	
-	
-	/**
-	 * Remove a table and it's contents from database
-	 */
-	SQLite.prototype.dropTable = function(cfg) {
+	SQLite.prototype.list = function(cfg) {
 		
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
@@ -724,33 +673,6 @@
 			dfd.rejectWith(this, [[], queries]);
 			return dfd.promise();
 		}
-		
-		// action
-		this.find({
-			query: "DROP TABLE " + cfg.query
-		
-		// success
-		}).done(function(r, tx) {
-			dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
-		
-		// failure
-		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
-			
-		});
-		
-		return dfd.promise();
-	}
-	
-	
-	
-	
-	
-	SQLite.prototype.find = function(cfg) {
-		if (!this.db) return;
-		
-		var cfg = this.configQuery(cfg);
-		var dfd = this.configDeferred(cfg);
 		
 		// action
 		this.query({
@@ -766,22 +688,27 @@
 				rows.push( r.rows.item(i) );
 			}
 			
-			dfd.resolveWith(cfg.context, [rows, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [rows, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
-	SQLite.prototype.findFirst = function(cfg) {
-		if (!this.db) return;
+	SQLite.prototype.first = function(cfg) {
 		
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
+		
+		// missing database connection!
+		if (!this.db) {
+			dfd.rejectWith(this, [[], queries]);
+			return dfd.promise();
+		}
 		
 		// action
 		this.query({
@@ -798,24 +725,111 @@
 				r = [];
 			}
 			
-			dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			
 		});
 		
 		return dfd.promise();
-	}
-	
+	};
 	
 	
 	/**
-	 * List al database tables as an array of table names
+	 * It execute a callback at each results of a given query.
+	 * callback should return a DFD object so execution of
+	 * the next callback depends on solution ot the DFD!
 	 */
-	SQLite.prototype.listTables = function(cfg) {
-		//this.log('listTables');
+	SQLite.prototype.each = function(query, callback) {
+		
+		var cfg = $.extend({}, {
+			before:			function() {},
+			after:			function() {},
+			iterator:		__SQLite__eachIterator
+		}, this.configQuery(query));
+		
+		var dfd = this.configDeferred(cfg);
+		
+		// missing database connection!
+		if (!this.db) {
+			dfd.rejectWith(this, [[], queries]);
+			return dfd.promise();
+		}
+		
+		// apply explicit callback to local configuration
+		if (typeof callback == 'function') cfg.iterator = callback;
+		
+		// action
+		this.list({
+			query:cfg.query,
+			data:cfg.data
+		
+		// success
+		}).done(function(r, tx) {
+			
+			var _this 		= this;
+			var _stepDfd 	= $.Deferred();
+			
+			// callback "before"
+			$.when(cfg.before.call(_this, r)).then(function() {
+				__SQLite__eachStepLogic.call(_this, _stepDfd, cfg, r, 0);	
+			});
+			
+			// callback "after"
+			_stepDfd.always(function() {
+				$.when(cfg.after.call(_this, r)).then(function() {
+					dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
+				});
+			});
+		
+		// failure
+		}).fail(function(e, tx) {
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
+			
+		});
+				
+		return dfd.promise();
+	};
+	
+	
+	/**
+	 * each()'s iteration step:
+	 * run iterator callback waiting for it's DFD to be solved before
+	 * move to the next step!
+	 */
+	var __SQLite__eachStepLogic = function(_D, cfg, results, step) {
+		$.when(cfg.iterator.call(this, results[step], step, results)).then($.proxy(function() {
+			if (step >= results.length-1) {
+				_D.resolveWith(this);
+			} else {
+				__SQLite__eachStepLogic.call(this, _D, cfg, results, step+1);
+			}	
+		},this));
+	};
+	
+	
+	/**
+	 * each()'s iteration step callback.
+	 * just declared as self documentation method!
+	 */
+	var __SQLite__eachIterator = function(item, i, results) {
+		var _D = $.Deferred();
+		
+		// ... do complex stuff, sub iterations, expensive queries ...
+		_D.resolve();
+		
+		return _D.promise();
+	};
+	
+	
+	
+	SQLite.prototype.insert = function(fields, table, cfg) {
+		
+		// switch to "insertMany" if an array of items was given
+		if ($.isArray(fields)) return this.insertMany(fields, table, cfg);
+		
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
 		
@@ -826,16 +840,12 @@
 		}
 		
 		// action
-		this.find({
-			query: "SELECT * FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'"
+		this.query({
+			query:__SQLite__buildInsertSql(fields, table)
 		
 		// success
 		}).done(function(r, tx) {
-			var tables = [];
-			for (var i=0; i<r.length; i++) {
-				tables.push(r[i].name);
-			}
-			dfd.resolveWith(cfg.context, [tables, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
@@ -844,7 +854,57 @@
 		});
 		
 		return dfd.promise();
-	}
+	};
+	
+	
+	SQLite.prototype.insertMany = function(items, table, cfg) {
+		var cfg = this.configQuery(cfg);
+		var dfd = this.configDeferred(cfg);
+		
+		// missing database connection!
+		if (!this.db) {
+			dfd.rejectWith(this, [[], queries]);
+			return dfd.promise();
+		}
+		
+		if (!$.isArray(items)) {
+			items = [items];
+		}
+		
+		if (items.length) {
+			var results = [];
+			__SQLite__insertManyStep(items, table, 0, results, dfd, this);
+		} else {
+			dfd.rejectWith(this);
+		}
+		
+		return dfd.promise();
+	};
+	
+	
+	var __SQLite__buildInsertSql = function(fields, table) {
+		var l1 = '';
+		var l2 = '';
+		
+		$.each(fields, function(key, val) {
+			l1 += key+',';
+			l2 += '\'' + val.replace(/\'/g, "''") + '\',';
+		});
+		
+		return 'INSERT INTO ' + table + ' (' + l1.substr(0, l1.length-1) + ') VALUES (' + l2.substr(0, l2.length-1) + ')';
+	};
+	
+	
+	var __SQLite__insertManyStep = function(items, table, step, results, dfd, _class) {
+		_class.insert(items[step], table).always(function(r) {
+			results.push(r);
+			if (step >= items.length-1) {
+				dfd.resolveWith(_class, [results]);
+			} else {
+				__SQLite__insertManyStep(items, table, step+1, results, dfd, _class);
+			}
+		});
+	};
 	
 	
 	
@@ -866,14 +926,15 @@
 		
 		this.db.transaction(function(tx) {
 			tx.executeSql(cfg.query, cfg.data, function(tx, r) {
-				dfd.resolveWith(cfg.context, [r, cfg, tx, true, dfd]);
+				dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 			}, function(tx, e) {
-				dfd.rejectWith(cfg.context, [e, cfg, tx, false, dfd]);
+				console.log(e);
+				dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
 			});
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -884,10 +945,10 @@
 	 * - it doesn't matter if single query success or fails
 	 *
 	 */
-	SQLite.prototype.multi = function(queries, cfg) {
+	SQLite.prototype.many = function(queries, cfg) {
 		
 		// strong type recognising
-		if (cfg === true) cfg = {quequed:true}
+		if (cfg === true) cfg = {quequed:true};
 		
 		// "quequed" option will demand queries execution to the proper method
 		var cfg = $.extend({}, {quequed:false}, this.configQuery(cfg));
@@ -901,7 +962,7 @@
 		
 		// quequed multi query have it's own method!
 		if (cfg.quequed) {
-			this.multiq(queries, cfg).done(function() {
+			this.manyq(queries, cfg).done(function() {
 				dfd.resolveWith(this);
 			}).fail(function() {
 				dfd.rejectWith(this);
@@ -910,22 +971,24 @@
 		// non quequed multi query implementation
 		} else {
 			var _queries = 0;
-			var _success = [];
-			var _failure = [];
+			var _results = {
+				done: [],
+				fail: []
+			};
 			
 			for (var i=0; i<queries.length; i++) {
 				_queries++;
-				this.query(queries[i]).done(function(r, cfg) {
-					_success.push(cfg.query);
+				this.query(queries[i]).done(function() {
+					_results.done.push(arguments);
 					
 				}).fail(function() {
-					_failure.push(cfg.query);
+					_results.fail.push(arguments);
 				
 				// check to determine the ending of queries execution!
 				}).always(function() {
 					_queries--;
 					if (_queries == 0 && i>=queries.length-1) {
-						dfd.resolveWith(this, [_success, _failure]);
+						dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 					}
 					
 				});
@@ -933,14 +996,14 @@
 			
 			// solve an empty queries array... may be an error of a stupid dev!
 			if (!queries.length) {
-				dfd.resolveWith(this, [_success, _failure]);
+				dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 			}
 		}
 		
 		
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -952,7 +1015,7 @@
 	 * - it doesn't matter if single query success or fails
 	 * 
 	 */
-	SQLite.prototype.multiq = function(queries, cfg) {
+	SQLite.prototype.manyq = function(queries, cfg) {
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
 		
@@ -963,40 +1026,222 @@
 		}
 		
 		var _step	 = 0;
-		var _success = [];
-		var _failure = [];
+		var _results = {
+			done: [],
+			fail: []
+		};
 		
 		// step logic
 		// go to the next step when query ends execution
 		var _doStep = function() {
 			var query = queries[_step];
 			this.query(query).done(function() {
-				_success.push(query);
+				_results.done.push(arguments);
 				
 			}).fail(function() {
-				_failure.push(query);
+				_results.fail.push(arguments);
 			
 			// determine the end of the queque or setup next step
 			}).always(function() {
 				if (_step >= queries.length-1) {
-					dfd.resolveWith(this, [_success, _failure]);
+					dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 				} else {
 					_step++;
 					_doStep.call(this);
 				}
 			});
 			
-		}
+		};
 		
 		// startup multiple query execution!
 		if (queries.length) {
 			_doStep.call(this);
 		} else {
-			dfd.resolveWith(this, [_success, _failure]);
+			dfd.resolveWith(this, [_results, cfg, true, queries, dfd]);
 		}
 		
 		return dfd.promise();
-	}
+	};
+	
+	
+	/**
+	 * API Method
+	 */
+	SQLite.prototype.ready = function(callback) {
+		// execute a callback logic when connection ends
+		if (typeof callback == 'function') {
+			var _D 		= $.Deferred();
+			var _this 	= this;
+			this.Conn.done(function() {
+				$.when(callback.call(_this)).then(function() {
+					_D.resolveWith(_this);
+				});
+			});
+			return _D.promise();
+		
+		// return an instance of deferred API methods
+		} else {
+			if (!this._ready) this._ready = new __SQLite__ready(this);
+			return this._ready;
+		}
+	};
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Connection deferred utility methods
+	 */
+	var __SQLite__ready = function(_class) {
+		this.obj = _class;
+	};
+	
+	
+	__SQLite__ready.prototype.bypass = function(_api, _args) {
+		var _A = _args;
+		var _B = this.obj;
+		var _D = $.Deferred();		
+		
+		_B.ready(function() {
+			$.when(_B[_api].apply(_B, _A)).always(function(r, cfg, _is_, tx, dfd) {
+				if (_is_) {
+					_D.resolveWith(_B, [r, cfg, _is_, tx, dfd]);
+				} else {
+					_D.rejectWith(_B, [r, cfg, _is_, tx, dfd]);
+				}
+			});
+		});
+		
+		return _D.promise();
+	};
+	
+	
+	__SQLite__ready.prototype.query = function() {
+		return this.bypass('query', arguments);
+	};
+	
+	__SQLite__ready.prototype.multi = function() {
+		return this.bypass('multi', arguments);
+	};
+	
+	__SQLite__ready.prototype.multiq = function() {
+		return this.bypass('multiq', arguments);
+	};
+	
+	__SQLite__ready.prototype.list = function() {
+		return this.bypass('list', arguments);
+	};
+	
+	__SQLite__ready.prototype.first = function() {
+		return this.bypass('first', arguments);
+	};
+	
+	__SQLite__ready.prototype.each = function() {
+		return this.bypass('each', arguments);
+	};
+	
+	__SQLite__ready.prototype.createTable = function() {
+		return this.bypass('createTable', arguments);
+	};
+	
+	__SQLite__ready.prototype.dropTable = function() {
+		return this.bypass('dropTable', arguments);
+	};
+	
+	__SQLite__ready.prototype.listTable = function() {
+		return this.bypass('listTable', arguments);
+	};
+	
+	__SQLite__ready.prototype.truncateTable = function() {
+		return this.bypass('truncateTable', arguments);
+	};
+	
+	__SQLite__ready.prototype.describeTable = function() {
+		return this.bypass('describeTable', arguments);
+	};
+	
+	
+	
+	
+	/**
+	 * Remove a table and it's contents from database
+	 */
+	SQLite.prototype.createTable = function(schema, cfg) {
+		
+		var cfg = this.configQuery(cfg);
+		var dfd = this.configDeferred(cfg);
+		
+		// missing database connection!
+		if (!this.db) {
+			dfd.rejectWith(this, [[], queries]);
+			return dfd.promise();
+		}
+		
+		// setup CREATE statement
+		cfg.query = 'CREATE TABLE ' + schema.name + ' (';
+		for (var i=0; i<schema.fields.length; i++) {
+			cfg.query+= this.columnConfig2Sql(schema.fields[i]);
+			if (i < schema.fields.length-1) {
+				cfg.query+= ', ';
+			}
+		}
+		cfg.query+= ')';
+		
+		this.log(cfg.query);
+		
+		// action
+		this.query({
+			query: cfg.query
+		
+		// success
+		}).done(function(r, tx) {
+			dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
+		
+		// failure
+		}).fail(function(e, tx) {
+			dfd.rejectWith(cfg.context, [e, cfg, false, tx, dfd]);
+			
+		});
+		
+		return dfd.promise();
+	};
+	
+	
+	
+	
+	/**
+	 * Remove a table and it's contents from database
+	 */
+	SQLite.prototype.dropTable = function(cfg) {
+		
+		var cfg = this.configQuery(cfg);
+		var dfd = this.configDeferred(cfg);
+		
+		// missing database connection!
+		if (!this.db) {
+			dfd.rejectWith(this, [[], queries]);
+			return dfd.promise();
+		}
+		
+		// action
+		this.list({
+			query: "DROP TABLE " + cfg.query
+		
+		// success
+		}).done(function(r, tx) {
+			dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
+		
+		// failure
+		}).fail(function(e, tx) {
+			dfd.rejectWith(cfg.context, [e, cfg, true, tx, dfd]);
+			
+		});
+		
+		return dfd.promise();
+	};
 	
 	
 	
@@ -1016,24 +1261,65 @@
 		}
 		
 		// action
-		this.find({
+		this.query({
 			query: "DELETE FROM " + cfg.query
 		
 		// success
 		}).done(function(r, tx) {
-			dfd.resolveWith(cfg.context, [r, tx, true, dfd]);
+			dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 		
 		// failure
 		}).fail(function(e, tx) {
-			dfd.rejectWith(cfg.context, [e, tx, false, dfd]);
+			dfd.rejectWith(cfg.context, [e, cfg, true, tx, dfd]);
 			
 		});
 		
 		return dfd.promise();
-	}
+	};
+
+
 	
 	
-
-
-
+	
+	
+	/**
+	 * List al database tables as an array of table names
+	 */
+	SQLite.prototype.listTables = function(cfg) {
+		//this.log('listTables');
+		var cfg = this.configQuery(cfg);
+		var dfd = this.configDeferred(cfg);
+		
+		// missing database connection!
+		if (!this.db) {
+			dfd.rejectWith(this, [[], queries]);
+			return dfd.promise();
+		}
+		
+		// action
+		this.list({
+			query: "SELECT * FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'"
+		
+		// success
+		}).done(function(r, tx) {
+			var tables = [];
+			for (var i=0; i<r.length; i++) {
+				tables.push(r[i].name);
+			}
+			dfd.resolveWith(cfg.context, [tables, cfg, true, tx, dfd]);
+		
+		// failure
+		}).fail(function(e, tx) {
+			dfd.rejectWith(cfg.context, [e, cfg, true, tx, dfd]);
+			
+		});
+		
+		return dfd.promise();
+	};	
+	
+	
+	
+	window.SQLite = SQLite;
+	
+	
 })(jQuery);

@@ -41,7 +41,7 @@ define(['./class.sqlite'], function(SQLite) {
 			if (!this._ready) this._ready = new __SQLite__ready(this);
 			return this._ready;
 		}
-	}
+	};
 	
 	
 	
@@ -54,7 +54,7 @@ define(['./class.sqlite'], function(SQLite) {
 	 */
 	var __SQLite__ready = function(_class) {
 		this.obj = _class;
-	}
+	};
 	
 	
 	__SQLite__ready.prototype.bypass = function(_api, _args) {
@@ -73,51 +73,51 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return _D.promise();
-	}
+	};
 	
 	
 	__SQLite__ready.prototype.query = function() {
 		return this.bypass('query', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.multi = function() {
 		return this.bypass('multi', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.multiq = function() {
 		return this.bypass('multiq', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.list = function() {
 		return this.bypass('list', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.first = function() {
 		return this.bypass('first', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.each = function() {
 		return this.bypass('each', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.createTable = function() {
 		return this.bypass('createTable', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.dropTable = function() {
 		return this.bypass('dropTable', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.listTable = function() {
 		return this.bypass('listTable', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.truncateTable = function() {
 		return this.bypass('truncateTable', arguments);
-	}
+	};
 	
 	__SQLite__ready.prototype.describeTable = function() {
 		return this.bypass('describeTable', arguments);
-	}
+	};
 	
 });

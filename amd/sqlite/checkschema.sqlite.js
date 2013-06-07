@@ -82,7 +82,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -106,7 +106,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		
 		// table wasn't found so is dropped out!
 		this.dropTable(table);
-	}
+	};
 	
 	
 	

@@ -71,7 +71,7 @@ define(['jquery'], function($) {
 			complete: 	function() {},
 			context: 	this
 		}, cfg);
-	}
+	};
 	
 	
 	/**
@@ -84,7 +84,7 @@ define(['jquery'], function($) {
 		d.fail(cfg.error);
 		d.always(cfg.complete);
 		return d;
-	}
+	};
 	
 	
 	SQLite.prototype.getTableConfig = function(table) {
@@ -93,7 +93,7 @@ define(['jquery'], function($) {
 				return this.config.schema[i];
 			}
 		}
-	}
+	};
 	
 	
 	SQLite.prototype.getTableConfigFields = function(table) {
@@ -103,7 +103,7 @@ define(['jquery'], function($) {
 		} else {
 			return [];
 		}
-	}
+	};
 	
 	
 	/**
@@ -127,7 +127,7 @@ define(['jquery'], function($) {
 		}
 		
 		return sql;
-	}
+	};
 	
 	
 

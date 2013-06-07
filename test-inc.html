@@ -3,16 +3,88 @@
 <head>
     <meta charset="utf-8">
 	
-	<title>SQLite</title>
+	<title>SQLite [AMD]</title>
 	
 	<!-- jQuery + TwitterBootstrap Assets -->
 	<link href="./3rd-party/bootstrap-combined.min.css" rel="stylesheet">
-	<script src="./3rd-party/jquery-1.10.1.min.js">
+	<script src="./3rd-party/jquery-1.10.1.min.js"></script>
 	<script src="./3rd-party/bootstrap.min.js"></script>
 	
+	<style>
+	section {border-bottom:100px solid #f9f9f9;margin-bottom:100px}
+	</style>
 	
-	<!-- SQLite Library -->
-	<script src="inc/sqlite.src.js?v001"></script>
+	
+	<!-- Load from AMD with RequireJS and run some logic code -->
+	<script src="./inc/sqlite.min.js"></script>
+	<script>
+	/**
+	 * Setup Database Connection
+	 * (if you don't specify any version you can enjoy versioning control feature!)
+	 */
+	window.db = new SQLite({
+		
+		// Assign a name to the database!
+		name: 'TestAmdDb',
+		
+		
+		/**
+		 * define database schema
+		 * this schema is checket at connection time and is applied to your database:
+		 * - creating unexisting tables
+		 * - dropping unnecessary tables
+		 * - adding new columns to existing tables
+		 */
+		schema: [{
+			name: 'users',
+			fields: [
+				{name:'id', type:'INTEGER', autoincrement:true, primary:true},
+				{name:'name', type:'VARCHAR', len:255}
+			]
+		},{
+			name: 'books',
+			fields: [
+				{name:'id', type:'INTEGER', autoincrement:true, primary:true},
+				{name:'user_id', type:'INTEGER'},
+				{name:'title', type:'VARCHAR', len:255}
+			]
+		}],
+		
+		
+		/**
+		 * populate with some data at database creation time
+		 * (these instruction runs only the first time initialization happens!)
+		 */
+		onAfterCreate: function() {
+			var _D = $.Deferred();
+			
+			// "multiq()" runs multiple queries quequed one after one so it grand
+			// the right execution order as you specify in queries array!
+			// 
+			// you can try run "multi()"... is much quicker but does not grant
+			// the right execution order
+			this.manyq([
+				// some users
+				"INSERT INTO users VALUES (1, 'Marco Pegoraro')",
+				"INSERT INTO users VALUES (2, 'Luca Biondi')",
+				"INSERT INTO users VALUES (3, 'Alfonso Gemelli')",
+				
+				// some books
+				"INSERT INTO books VALUES (null, 1, 'Un Anno sull''Altipiano')",
+				"INSERT INTO books VALUES (null, 1, 'Cyclops')",
+				"INSERT INTO books VALUES (null, 2, 'L''Oro dell''Inca')",
+			
+			// solve callback's DFD after query execution ensure db initialization
+			// will go on only when all initial data is stored into database
+			]).done(function() {
+				_D.resolveWith(this);
+			});
+			
+			return _D.promise();
+		}
+		
+	}); // -- End Database Config --		
+	</script>
 	
 </head>
 <body>
@@ -25,14 +97,209 @@
 				<a class="brand" href="#">SQLite</a>
 			</div>
 		</div>
-	
-	
 		
-		<div class="row">
-			<div class="span12">
-				<p>mona</p>
+		
+		
+		<!--
+		---- QUERY
+		-->
+		<section id="apiQuery">
+			<div class="row">
+				<div class="span12">
+					<div class="page-header">
+						<h3>query() <small>throw a generic SQL instruction</small></h3>
+					</div>
+				</div>
+				
 			</div>
-		</div>
+			<div class="row">
+				<div class="span8">
+					<p>
+						[API Description]
+					</p>
+				</div>
+				<div class="span4">
+					<p><a href="#apiQuery" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
+					<div id="apiQueryTarget" class="well">
+						<p><i>[example output]</i></p>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			$(document).delegate('[href=#apiQuery]', 'click', function(e) {
+				e.preventDefault();
+				var $target = $('#apiQueryTarget');
+				$target.html('');
+				
+				db.ready().query("SELECT * FROM books").done(function(resultSet, cfg) {
+					this.log("query(" + cfg.query + ")");
+					this.log('ResultSet:');
+					this.log(resultSet);
+					this.log(resultSet.rows);
+					this.log("--// query //---");
+					
+					$target.append($('<p>').html('fetched rows: ' + resultSet.rows.length));
+				});
+				
+			});
+			</script>
+		</section>
+		
+		
+		
+		
+		
+		<!--
+		---- LIST
+		-->
+		<section id="apiList">
+			<div class="row">
+				<div class="span12">
+					<div class="page-header">
+						<h3>list() <small>read SQL records into an array</small></h3>
+					</div>
+				</div>
+				
+			</div>
+			<div class="row">
+				<div class="span8">
+					<p>
+						[API Description]
+					</p>
+				</div>
+				<div class="span4">
+					<p><a href="#apiList" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
+					<div id="apiListTarget" class="well">
+						<p><i>[example output]</i></p>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			$(document).delegate('[href=#apiList]', 'click', function(e) {
+				e.preventDefault();
+				var $target = $('#apiListTarget');
+				$target.html('');
+				
+				db.ready().list("SELECT * FROM books").done(function(items, cfg) {
+					this.log("list(" + cfg.query + ")");
+					this.log(items);
+					this.log("--// list //---");
+					
+					$target.append($('<p>').html('fetched rows: ' + items.length));
+					$.each(items, function(i, item) {
+						$target.append($('<p style="margin:0;font-size:.85em">').html(item.title));
+					});
+				});
+				
+			});
+			</script>
+		</section>
+		
+		
+		
+		
+		
+		<!--
+		---- FIRST
+		-->
+		<section id="apiFirst">
+			<div class="row">
+				<div class="span12">
+					<div class="page-header">
+						<h3>first() <small>fetch first item from a SQL</small></h3>
+					</div>
+				</div>
+				
+			</div>
+			<div class="row">
+				<div class="span8">
+					<p>
+						[API Description]
+					</p>
+				</div>
+				<div class="span4">
+					<p><a href="#apiFirst" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
+					<div id="apiFirstTarget" class="well">
+						<p><i>[example output]</i></p>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			$(document).delegate('[href=#apiFirst]', 'click', function(e) {
+				e.preventDefault();
+				var $target = $('#apiFirstTarget');
+				$target.html('');
+				
+				db.ready().first("SELECT * FROM books").done(function(item, cfg) {
+					this.log("find(" + cfg.query + ")");
+					this.log(item);
+					this.log("--// find //---");
+					
+					$target.append($('<p style="margin:0;font-size:.85em">').html(item.title));
+				});
+				
+			});
+			</script>
+		</section>
+		
+		
+		
+		
+		
+		<!--
+		---- EACH
+		-->
+		<section id="apiEach">
+			<div class="row">
+				<div class="span12">
+					<div class="page-header">
+						<h3>each() <small>display all "books" table records</small></h3>
+					</div>
+				</div>
+				
+			</div>
+			<div class="row">
+				<div class="span8">
+					<p>
+						[API Description]
+					</p>
+				</div>
+				<div class="span4">
+					<p><a href="#apiEach" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
+					<div id="apiEachTarget" class="well">
+						<p><i>[example output]</i></p>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			$(document).delegate('[href=#apiEach]', 'click', function(e) {
+				e.preventDefault();
+				var $target = $('#apiEachTarget');
+				$target.html('<ul>');
+				
+				db.ready().each("SELECT * FROM books", function(book) {
+					var _D = $.Deferred();
+					
+					// chain a subquery:
+					this.first("SELECT * FROM users WHERE id=" + book.user_id).done(function(user) {
+						$li = $('<li style="font-size:0.85em">').html(book.title);
+						$li.append(', <i>' + user.name + '</i>');
+						$target.find('ul').append($li);
+						
+						// solve main query DFD when all sub-logic is done
+						_D.resolve();
+					});
+					
+					return _D.promise();
+				});
+			});
+			</script>
+		</section>
+		
 	</div>
 	
 	
@@ -40,93 +307,6 @@
 	
 	
 	
-	<script>
-	$(document).ready(function() {
-		
-		
-		
-		
-		
-		/**
-		 * Setup Database Connection
-		 */
-		var db = new SQLite({
-			name: 'TestDb',
-			
-			
-			/**
-			 * define database schema
-			 */
-			schema: [{
-				name: 'users',
-				fields: [
-					{name:'id', type:'INTEGER', autoincrement:true, primary:true},
-					{name:'name', type:'VARCHAR', len:255},
-					{name:'surname', type:'VARCHAR', len:255}
-				]
-			},{
-				name: 'books',
-				fields: [
-					{name:'id', type:'INTEGER', autoincrement:true, primary:true},
-					{name:'user_id', type:'INTEGER'},
-					{name:'title', type:'VARCHAR', len:255}
-				]
-			}],
-			
-			
-			/**
-			 * populate with some data at database creation time
-			 * (these instruction runs only the first time initialization happens!)
-			 */
-			onAfterCreate: function() {
-				var _D = $.Deferred();
-				
-				this.multi([
-					// some users
-					"INSERT INTO users VALUES (1, 'Marco', 'Pegoraro')",
-					"INSERT INTO users VALUES (2, 'Luca', 'Biondi')",
-					"INSERT INTO users VALUES (3, 'Alfonso', 'Gemelli')",
-					
-					// some books
-					"INSERT INTO books VALUES (null, 1, 'Un Anno sull''Altipiano')",
-					"INSERT INTO books VALUES (null, 1, 'Cyclops')",
-					"INSERT INTO books VALUES (null, 2, 'L''Oro dell''Inca')",
-				]).done(function() {
-					_D.resolveWith(this);
-				});
-				
-				return _D.promise();
-			}
-			
-			
-		});
-		
-		
-		
-		
-		/**
-		 * Just run some database logic when connection is ready
-		 */
-		db.ready(function() {
-			
-			// list all users and their books!
-			this.find("SELECT * FROM users ORDER BY surname ASC").done(function(users) {
-				$.each(users, $.proxy(function(i, user) {
-					this.find("SELECT * FROM books WHERE user_id="+user.id).done(function(books) {
-						console.log(user.name + ' ' + user.surname);
-						console.log("===========================");
-						$.each(books, function(i, book) {
-							console.log("- " + book.title);
-						});
-						console.log("\n\n\n");
-					});
-				},this));
-			});
-			
-		});
-		
-	});
-	</script>
 	
 </body>
 </html>

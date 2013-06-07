@@ -67,7 +67,7 @@
 				// 
 				// you can try run "multi()"... is much quicker but does not grant
 				// the right execution order
-				this.multiq([
+				this.manyq([
 					// some users
 					"INSERT INTO users VALUES (1, 'Marco Pegoraro')",
 					"INSERT INTO users VALUES (2, 'Luca Biondi')",
@@ -87,7 +87,8 @@
 				return _D.promise();
 			}
 			
-		}); // -- End Database Config --
+		}); // -- End Database Config --		
+		
 				
 	});
 	</script>

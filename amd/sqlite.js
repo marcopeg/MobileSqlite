@@ -40,6 +40,14 @@ define([
 	 * Apply default configuration to the instance
 	 */
 	SQLite.prototype.initialize = function(cfg) {
+		
+		// single string argument as dbname
+		if (typeof cfg == 'string') {
+			cfg = {
+				name: cfg
+			};
+		}
+		
 		this.config = $.extend({}, {
 			
 			// database connection informations
@@ -72,7 +80,7 @@ define([
 			versions: []
 			
 		}, cfg||{});
-	}
+	};
 	
 		
 	// export module

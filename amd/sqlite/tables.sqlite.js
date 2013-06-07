@@ -51,7 +51,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -85,7 +85,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -105,7 +105,7 @@ define(['./class.sqlite'], function(SQLite) {
 		}
 		
 		// action
-		this.find({
+		this.query({
 			query: "DELETE FROM " + cfg.query
 		
 		// success
@@ -119,7 +119,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 
 
 	
@@ -159,7 +159,7 @@ define(['./class.sqlite'], function(SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	

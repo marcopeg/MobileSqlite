@@ -54,6 +54,6 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 });

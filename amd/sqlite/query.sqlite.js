@@ -36,7 +36,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -47,10 +47,10 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 	 * - it doesn't matter if single query success or fails
 	 *
 	 */
-	SQLite.prototype.multi = function(queries, cfg) {
+	SQLite.prototype.many = function(queries, cfg) {
 		
 		// strong type recognising
-		if (cfg === true) cfg = {quequed:true}
+		if (cfg === true) cfg = {quequed:true};
 		
 		// "quequed" option will demand queries execution to the proper method
 		var cfg = $.extend({}, {quequed:false}, this.configQuery(cfg));
@@ -64,7 +64,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		
 		// quequed multi query have it's own method!
 		if (cfg.quequed) {
-			this.multiq(queries, cfg).done(function() {
+			this.manyq(queries, cfg).done(function() {
 				dfd.resolveWith(this);
 			}).fail(function() {
 				dfd.rejectWith(this);
@@ -105,7 +105,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	
@@ -117,7 +117,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 	 * - it doesn't matter if single query success or fails
 	 * 
 	 */
-	SQLite.prototype.multiq = function(queries, cfg) {
+	SQLite.prototype.manyq = function(queries, cfg) {
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
 		
@@ -153,7 +153,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 				}
 			});
 			
-		}
+		};
 		
 		// startup multiple query execution!
 		if (queries.length) {
@@ -163,7 +163,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 });

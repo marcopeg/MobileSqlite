@@ -40,7 +40,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		});
 		
 		return dfd.promise();
-	}
+	};
 	
 	
 	/**
@@ -64,7 +64,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return fields;
-	}
+	};
 	
 	
 	/**
@@ -111,7 +111,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 			return info;
 		}
 		
-	}
+	};
 	
 	
 	/**
@@ -137,6 +137,6 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		return type;
-	}
+	};
 	
 });
