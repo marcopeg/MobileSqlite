@@ -86,6 +86,32 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 	
 	
 	
+	/**
+	 * Drop all schema tables then rebuild
+	 */
+	SQLite.prototype.resetSchema = function() {
+		var dfd = $.Deferred();
+		
+		// drop tables
+		var _dropDfd = [];
+		for (var i=0; i<this.config.schema.length; i++) {
+			_dropDfd = this.dropTable(this.config.schema[i].name);
+		}
+		
+		// rebuild new schema
+		_dropDfd.always(function() {
+			this.checkSchema().always(function() {
+				dfd.resolveWith(this);
+			});
+		});
+		
+		return dfd.promise();
+	};
+	
+	
+	
+	
+	
 	
 	/**
 	 * PRIVATE
