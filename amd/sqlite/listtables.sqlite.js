@@ -25,7 +25,7 @@ define(['./class.sqlite'], function(SQLite) {
 		}
 		
 		// action
-		this.find({
+		this.list({
 			query: "SELECT * FROM sqlite_master WHERE type='table' AND name <> '__WebKitDatabaseInfoTable__'"
 		
 		// success

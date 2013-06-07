@@ -25,7 +25,7 @@ define(['./class.sqlite'], function(SQLite) {
 		}
 		
 		// action
-		this.find({
+		this.list({
 			query: "DROP TABLE " + cfg.query
 		
 		// success

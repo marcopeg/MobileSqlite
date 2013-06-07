@@ -63,11 +63,11 @@ define(['./class.sqlite'], function(SQLite) {
 		var _D = $.Deferred();		
 		
 		_B.ready(function() {
-			$.when(_B[_api].apply(_B, _A)).then(function(r, tx, is, dfd) {
+			$.when(_B[_api].apply(_B, _A)).then(function(r, tx, cfg, is, dfd) {
 				if (is) {
-					_D.resolveWith(_B, [r, tx, is, dfd]);
+					_D.resolveWith(_B, [r, tx, cfg, is, dfd]);
 				} else {
-					_D.rejectWith(_B, [r, tx, is, dfd]);
+					_D.rejectWith(_B, [r, tx, cfg, is, dfd]);
 				}
 			});
 		});
@@ -80,8 +80,36 @@ define(['./class.sqlite'], function(SQLite) {
 		return this.bypass('query', arguments);
 	}
 	
+	__SQLite__ready.prototype.list = function() {
+		return this.bypass('list', arguments);
+	}
+	
+	__SQLite__ready.prototype.first = function() {
+		return this.bypass('first', arguments);
+	}
+	
 	__SQLite__ready.prototype.each = function() {
 		return this.bypass('each', arguments);
+	}
+	
+	__SQLite__ready.prototype.createTable = function() {
+		return this.bypass('createTable', arguments);
+	}
+	
+	__SQLite__ready.prototype.dropTable = function() {
+		return this.bypass('dropTable', arguments);
+	}
+	
+	__SQLite__ready.prototype.listTable = function() {
+		return this.bypass('listTable', arguments);
+	}
+	
+	__SQLite__ready.prototype.truncateTable = function() {
+		return this.bypass('truncateTable', arguments);
+	}
+	
+	__SQLite__ready.prototype.describeTable = function() {
+		return this.bypass('describeTable', arguments);
 	}
 	
 });

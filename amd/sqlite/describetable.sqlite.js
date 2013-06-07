@@ -25,7 +25,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		}
 		
 		// action
-		this.findFirst({
+		this.first({
 			query: "SELECT sql FROM sqlite_master WHERE type='table' AND name = '"+cfg.query+"'"
 		
 		// success

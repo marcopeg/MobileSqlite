@@ -88,6 +88,16 @@
 			}
 			
 		}); // -- End Database Config --
+		
+		
+		db.ready(function() {
+			this.insert([
+				{name:'pippo'},
+				{name:'pluto'}
+			], 'users').done(function(r) {
+				console.log(r);
+			});
+		});
 			
 	});
 	</script>
@@ -121,12 +131,11 @@
 			<div class="row">
 				<div class="span8">
 					<p>
-						dewdew
+						[API Description]
 					</p>
-					
-					<a href="#apiQuery" class="btn btn-primary">Run Example!</a>
 				</div>
 				<div class="span4">
+					<p><a href="#apiQuery" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
 					<div id="apiQueryTarget" class="well">
 						<p><i>[example output]</i></p>
 					</div>
@@ -158,6 +167,105 @@
 		
 		
 		<!--
+		---- LIST
+		-->
+		<section id="apiList">
+			<div class="row">
+				<div class="span12">
+					<div class="page-header">
+						<h3>list() <small>read SQL records into an array</small></h3>
+					</div>
+				</div>
+				
+			</div>
+			<div class="row">
+				<div class="span8">
+					<p>
+						[API Description]
+					</p>
+				</div>
+				<div class="span4">
+					<p><a href="#apiList" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
+					<div id="apiListTarget" class="well">
+						<p><i>[example output]</i></p>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			$(document).delegate('[href=#apiList]', 'click', function(e) {
+				e.preventDefault();
+				var $target = $('#apiListTarget');
+				$target.html('');
+				
+				db.ready().list("SELECT * FROM books").done(function(items, cfg) {
+					this.log("list(" + cfg.query + ")");
+					this.log(items);
+					this.log("--// list //---");
+					
+					$target.append($('<p>').html('fetched rows: ' + items.length));
+					$.each(items, function(i, item) {
+						$target.append($('<p style="margin:0;font-size:.85em">').html(item.title));
+					});
+				});
+				
+			});
+			</script>
+		</section>
+		
+		
+		
+		
+		
+		<!--
+		---- FIRST
+		-->
+		<section id="apiFirst">
+			<div class="row">
+				<div class="span12">
+					<div class="page-header">
+						<h3>first() <small>fetch first item from a SQL</small></h3>
+					</div>
+				</div>
+				
+			</div>
+			<div class="row">
+				<div class="span8">
+					<p>
+						[API Description]
+					</p>
+				</div>
+				<div class="span4">
+					<p><a href="#apiFirst" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
+					<div id="apiFirstTarget" class="well">
+						<p><i>[example output]</i></p>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			$(document).delegate('[href=#apiFirst]', 'click', function(e) {
+				e.preventDefault();
+				var $target = $('#apiFirstTarget');
+				$target.html('');
+				
+				db.ready().first("SELECT * FROM books").done(function(item, cfg) {
+					this.log("find(" + cfg.query + ")");
+					this.log(item);
+					this.log("--// find //---");
+					
+					$target.append($('<p style="margin:0;font-size:.85em">').html(item.title));
+				});
+				
+			});
+			</script>
+		</section>
+		
+		
+		
+		
+		
+		<!--
 		---- EACH
 		-->
 		<section id="apiEach">
@@ -171,11 +279,12 @@
 			</div>
 			<div class="row">
 				<div class="span8">
-					<p>explanation</p>
-					
-					<a href="#apiEach" class="btn btn-primary">Run Example!</a>
+					<p>
+						[API Description]
+					</p>
 				</div>
 				<div class="span4">
+					<p><a href="#apiEach" class="btn btn-primary btn-success"><i class="icon-play icon-white"></i> Run Example!</a></p>
 					<div id="apiEachTarget" class="well">
 						<p><i>[example output]</i></p>
 					</div>
@@ -192,8 +301,8 @@
 					var _D = $.Deferred();
 					
 					// chain a subquery:
-					this.findFirst("SELECT * FROM users WHERE id=" + book.user_id).done(function(user) {
-						$li = $('<li>').html(book.title);
+					this.first("SELECT * FROM users WHERE id=" + book.user_id).done(function(user) {
+						$li = $('<li style="font-size:0.85em">').html(book.title);
 						$li.append(', <i>' + user.name + '</i>');
 						$target.find('ul').append($li);
 						

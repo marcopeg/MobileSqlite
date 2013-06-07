@@ -20,6 +20,7 @@ define([
 	'./sqlite/connect.sqlite',
 	'./sqlite/query.sqlite',
 	'./sqlite/find.sqlite',
+	'./sqlite/insert.sqlite',
 	'./sqlite/listtables.sqlite',
 	'./sqlite/describetable.sqlite',
 	'./sqlite/createtable.sqlite',

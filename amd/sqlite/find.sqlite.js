@@ -10,7 +10,7 @@
 define(['./class.sqlite'], function(SQLite) {
 	
 	
-	SQLite.prototype.find = function(cfg) {
+	SQLite.prototype.list = function(cfg) {
 		
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
@@ -46,7 +46,7 @@ define(['./class.sqlite'], function(SQLite) {
 		return dfd.promise();
 	}
 	
-	SQLite.prototype.findFirst = function(cfg) {
+	SQLite.prototype.first = function(cfg) {
 		
 		var cfg = this.configQuery(cfg);
 		var dfd = this.configDeferred(cfg);
@@ -109,7 +109,7 @@ define(['./class.sqlite'], function(SQLite) {
 		if (typeof callback == 'function') cfg.iterator = callback;
 		
 		// action
-		this.find({
+		this.list({
 			query:cfg.query,
 			data:cfg.data
 		
