@@ -34,7 +34,7 @@ define(['./class.sqlite'], function(SQLite) {
 		}
 		cfg.query+= ')';
 		
-		this.log(cfg.query);
+		//this.log(cfg.query);
 		
 		// action
 		this.query({
