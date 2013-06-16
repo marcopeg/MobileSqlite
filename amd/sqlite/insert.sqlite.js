@@ -73,7 +73,7 @@ define(['jquery', './class.sqlite'], function($, SQLite) {
 		
 		$.each(fields, function(key, val) {
 			l1 += key+',';
-			l2 += '\'' + val.replace(/\'/g, "''") + '\',';
+			l2 += '\'' + val.toString().replace(/\'/g, "''") + '\',';
 		});
 		
 		return 'INSERT INTO ' + table + ' (' + l1.substr(0, l1.length-1) + ') VALUES (' + l2.substr(0, l2.length-1) + ')';
