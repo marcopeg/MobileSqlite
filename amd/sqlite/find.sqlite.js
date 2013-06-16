@@ -66,13 +66,15 @@ define(['./class.sqlite'], function(SQLite) {
 		}).done(function(r, tx) {
 			
 			// fetch first row as return value
+			// empty return value will fail entire method!
 			if (r.rows.length) {
 				r = r.rows.item(0);
+				dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
 			} else {
-				r = [];
+				dfd.rejectWith(cfg.context, [{}, cfg, false, tx, dfd]);
 			}
 			
-			dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
+			
 		
 		// failure
 		}).fail(function(e, tx) {
@@ -115,6 +117,12 @@ define(['./class.sqlite'], function(SQLite) {
 		
 		// success
 		}).done(function(r, tx) {
+		
+			// no items to step thorught!
+			if (!r.length) {
+				dfd.resolveWith(cfg.context, [r, cfg, true, tx, dfd]);
+				return;
+			}
 			
 			var _this 		= this;
 			var _stepDfd 	= $.Deferred();
